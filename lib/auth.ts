@@ -5,10 +5,18 @@ import type { AppUser } from "@/types";
 export async function getCurrentUser(): Promise<AppUser | null> {
   const supabase = await createSupabaseServerClient();
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return null;
+  }
+
   const { data: profile } = await supabase
     .from("users")
     .select("id, email, role, created_at")
-    .eq("id", "1")
+    .eq("id", user.id)
     .single();
 
   if (!profile) {
