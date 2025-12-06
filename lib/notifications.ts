@@ -92,6 +92,7 @@ export async function sendTestNotification() {
   }
 
   const settings = await getTelegramSettings();
+  console.log(settings);
   const token = settings?.telegram_bot_token || env.telegramBotToken;
   const chatId = settings?.telegram_chat_id || env.telegramChatId;
   const enabled = settings?.notifications_enabled ?? true;
