@@ -18,7 +18,7 @@ const updateUserSchema = z.object({
 
 export async function createUser(
   _prevState: { error?: string; success?: string } | undefined,
-  formData: FormData
+  formData: FormData,
 ) {
   const currentUser = await requireUser();
   assertAdmin(currentUser);
@@ -63,10 +63,7 @@ export async function createUser(
   return { success: "User berhasil dibuat" };
 }
 
-export async function updateUserRole(
-  _prevState: { error?: string; success?: string } | undefined,
-  formData: FormData
-) {
+export async function updateUserRole(formData: FormData) {
   const currentUser = await requireUser();
   assertAdmin(currentUser);
 
@@ -76,12 +73,12 @@ export async function updateUserRole(
   });
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message };
+    throw new Error(parsed.error.issues[0]?.message);
   }
 
   const serviceClient = createSupabaseServiceRoleClient();
   if (!serviceClient) {
-    return { error: "SUPABASE_SERVICE_ROLE_KEY belum diatur" };
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY belum diatur");
   }
 
   const { error } = await serviceClient
@@ -90,11 +87,10 @@ export async function updateUserRole(
     .eq("id", parsed.data.userId);
 
   if (error) {
-    return { error: error.message };
+    throw new Error(error.message);
   }
 
   revalidatePath("/users");
-  return { success: "Role user diperbarui" };
 }
 
 export async function deleteUser(formData: FormData) {
@@ -103,25 +99,24 @@ export async function deleteUser(formData: FormData) {
 
   const userId = formData.get("userId");
   if (!userId || typeof userId !== "string") {
-    return { error: "ID user tidak valid" };
+    throw new Error("ID user tidak valid");
   }
 
   if (currentUser.id === userId) {
-    return { error: "Tidak dapat menghapus akun sendiri" };
+    throw new Error("Tidak dapat menghapus akun sendiri");
   }
 
   const serviceClient = createSupabaseServiceRoleClient();
   if (!serviceClient) {
-    return { error: "SUPABASE_SERVICE_ROLE_KEY belum diatur" };
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY belum diatur");
   }
 
   const { error } = await serviceClient.auth.admin.deleteUser(userId);
 
   if (error) {
-    return { error: error.message };
+    throw new Error(error.message);
   }
 
   await serviceClient.from("users").delete().eq("id", userId);
   revalidatePath("/users");
-  return { success: "User dihapus" };
 }

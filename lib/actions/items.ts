@@ -21,7 +21,7 @@ const updateSchema = itemSchema.extend({
 
 export async function createItem(
   _prevState: { error?: string; success?: string } | undefined,
-  formData: FormData
+  formData: FormData,
 ) {
   await requireUser();
   const parsed = itemSchema.safeParse({
@@ -60,7 +60,7 @@ export async function createItem(
 
 export async function updateItem(
   _prevState: { error?: string; success?: string } | undefined,
-  formData: FormData
+  formData: FormData,
 ) {
   await requireUser();
   const parsed = updateSchema.safeParse({
@@ -108,22 +108,21 @@ export async function updateItem(
 export async function deleteItem(formData: FormData) {
   const user = await requireUser();
   if (user.role !== "admin") {
-    return { error: "Hanya admin yang dapat menghapus barang" };
+    throw new Error("Hanya admin yang dapat menghapus barang");
   }
 
   const id = formData.get("id");
   if (!id || typeof id !== "string") {
-    return { error: "ID tidak valid" };
+    throw new Error("ID tidak valid");
   }
 
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.from("items").delete().eq("id", id);
 
   if (error) {
-    return { error: error.message };
+    throw new Error(error.message);
   }
 
   revalidatePath("/items");
   revalidatePath("/dashboard");
-  return { success: "Barang dihapus" };
 }

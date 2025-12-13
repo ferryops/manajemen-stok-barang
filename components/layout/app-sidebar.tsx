@@ -8,11 +8,31 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 const NAV_ITEMS = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["admin", "staff"] },
-  { label: "Barang", href: "/items", icon: PackageOpen, roles: ["admin", "staff"] },
-  { label: "Pengguna", href: "/users", icon: Users2, roles: ["admin"] },
-  { label: "Settings", href: "/settings", icon: Settings, roles: ["admin", "staff"] },
-] as const;
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    roles: ["admin", "staff"] as const,
+  },
+  {
+    label: "Barang",
+    href: "/items",
+    icon: PackageOpen,
+    roles: ["admin", "staff"] as const,
+  },
+  {
+    label: "Pengguna",
+    href: "/users",
+    icon: Users2,
+    roles: ["admin"] as const,
+  },
+  {
+    label: "Settings",
+    href: "/settings",
+    icon: Settings,
+    roles: ["admin", "staff"] as const,
+  },
+];
 
 export function AppSidebar({ user }: { user: AppUser }) {
   const pathname = usePathname();
@@ -24,7 +44,9 @@ export function AppSidebar({ user }: { user: AppUser }) {
         Sistem Stok
       </div>
       <nav className="mt-8 flex flex-col gap-1 text-sm">
-        {NAV_ITEMS.filter((item) => item.roles.includes(user.role)).map((item) => {
+        {NAV_ITEMS.filter((item) =>
+          (item.roles as readonly string[]).includes(user.role),
+        ).map((item) => {
           const Icon = item.icon;
           const active = pathname.startsWith(item.href);
           return (
@@ -47,7 +69,9 @@ export function AppSidebar({ user }: { user: AppUser }) {
         <Badge variant="outline" className="mt-2 capitalize">
           {user.role}
         </Badge>
-        <p className="mt-2">Aktif sejak {new Date(user.created_at).toLocaleDateString("id-ID")}</p>
+        <p className="mt-2">
+          Aktif sejak {new Date(user.created_at).toLocaleDateString("id-ID")}
+        </p>
       </div>
     </aside>
   );
