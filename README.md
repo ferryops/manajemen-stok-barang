@@ -20,24 +20,55 @@ Aplikasi dashboard manajemen stok barang berbasis Next.js 16 (App Router) dengan
 
 ## Menjalankan Secara Lokal
 
-1. **Install dependensi**
+1. **Clone repository**
+   ```bash
+   git clone https://github.com/ferryops/manajemen-stok-barang.git
+   cd manajemen-stok-barang
+   ```
+
+2. **Install dependensi**
    ```bash
    pnpm install
    ```
-2. **Salin env dan isi kredensial**
+
+3. **Setup Supabase Project**
+   - Buat project baru di [Supabase](https://supabase.com)
+   - Buka SQL Editor di dashboard Supabase
+   - Jalankan script `schema.sql` untuk membuat tabel & dummy data
+   - Script akan membuat:
+     - Tabel `users`, `items`, `settings`
+     - 2 user dummy (admin & staff)
+     - 10 barang dummy untuk testing
+
+4. **Konfigurasi Environment Variables**
    ```bash
    cp .env.example .env.local
    ```
-   - `NEXT_PUBLIC_SUPABASE_URL` & `NEXT_PUBLIC_SUPABASE_ANON_KEY` dari Project Settings → API.
-   - `SUPABASE_SERVICE_ROLE_KEY` dibutuhkan untuk aksi admin (CRUD user & notifikasi).
-   - `TELEGRAM_BOT_TOKEN` & `TELEGRAM_CHAT_ID` opsional (bisa diisi melalui halaman Settings).
-3. **Deploy schema ke Supabase**
-   - Buka SQL Editor → jalankan isi `schema.sql` untuk membuat tabel & dummy data.
-4. **Jalankan development server**
+   
+   Isi file `.env.local` dengan kredensial dari Supabase:
+   ```env
+   # Dari Project Settings → API
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   
+   # Dari Project Settings → API → service_role (secret)
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+   
+   # Opsional - bisa diisi melalui halaman Settings
+   TELEGRAM_BOT_TOKEN=your-bot-token
+   TELEGRAM_CHAT_ID=your-chat-id
+   ```
+
+5. **Jalankan development server**
    ```bash
    pnpm dev
    ```
-   Aplikasi tersedia di `http://localhost:3000`.
+   
+   Aplikasi tersedia di `http://localhost:3000`
+
+6. **Login dengan akun dummy**
+   - Admin: `admin@example.com` / `password123`
+   - Staff: `staff@example.com` / `password123`
 
 ## Struktur Folder Penting
 
