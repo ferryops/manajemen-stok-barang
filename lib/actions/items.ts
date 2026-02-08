@@ -5,6 +5,7 @@ import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 import { sendLowStockNotifications } from "@/lib/notifications";
+import { fetchCategoryThresholds } from "@/lib/data";
 
 const itemSchema = z.object({
   name: z.string().min(1, { message: "Nama wajib diisi" }),
@@ -49,7 +50,11 @@ export async function createItem(
     return { error: error.message };
   }
 
-  if (payload.stock < 5) {
+  const thresholds = await fetchCategoryThresholds();
+  const threshold =
+    thresholds.find((t) => t.category === payload.category)?.min_stock ?? 5;
+
+  if (payload.stock < threshold) {
     await sendLowStockNotifications();
   }
 
@@ -96,7 +101,11 @@ export async function updateItem(
     return { error: error.message };
   }
 
-  if (payload.stock < 5) {
+  const thresholds = await fetchCategoryThresholds();
+  const threshold =
+    thresholds.find((t) => t.category === payload.category)?.min_stock ?? 5;
+
+  if (payload.stock < threshold) {
     await sendLowStockNotifications();
   }
 

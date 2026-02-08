@@ -12,7 +12,7 @@ function UserAvatar({ email }: { email: string }) {
 
 export function Header({ user }: { user: AppUser }) {
   return (
-    <header className="flex h-16 items-center justify-between border-b bg-background px-6">
+    <header className="flex min-h-16 items-center justify-between border-b bg-background px-6">
       <div>
         <p className="text-sm text-muted-foreground">Selamat datang kembali,</p>
         <p className="font-semibold text-foreground">{user.email}</p>

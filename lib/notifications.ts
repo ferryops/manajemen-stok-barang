@@ -29,7 +29,8 @@ function buildNotificationMessage(items: Item[]) {
     "⚠️ *Stok Barang Menipis*",
     "Barang berikut berada di bawah ambang stok 5:",
     ...items.map(
-      (item) => `• ${item.name} (${item.sku}) — stok ${item.stock} ${item.unit}`
+      (item) =>
+        `• ${item.name} (${item.sku}) — stok ${item.stock} ${item.unit}`,
     ),
   ];
 
@@ -46,12 +47,23 @@ export async function sendLowStockNotifications() {
     } as const;
   }
 
-  const [settingsResult, lowStockResult] = await Promise.all([
+  const [settingsResult, itemsResult, thresholdsResult] = await Promise.all([
     getTelegramSettings(),
-    serviceClient.from("items").select("*").lt("stock", 5),
+    serviceClient.from("items").select("*"),
+    serviceClient.from("category_thresholds").select("*"),
   ]);
 
-  const lowStockItems = (lowStockResult.data ?? []) as Item[];
+  const items = (itemsResult.data ?? []) as Item[];
+  const thresholds = (thresholdsResult.data ?? []) as any[]; // Use any or CategoryThreshold
+
+  const thresholdMap = new Map<string, number>(
+    thresholds.map((t) => [t.category, t.min_stock]),
+  );
+
+  const lowStockItems = items.filter((item) => {
+    const threshold = thresholdMap.get(item.category) ?? 5;
+    return item.stock < threshold;
+  });
 
   if (!lowStockItems.length) {
     return { ok: true, message: "Tidak ada stok menipis" } as const;
@@ -72,10 +84,22 @@ export async function sendLowStockNotifications() {
     } as const;
   }
 
+  const buildCategoryNotificationMessage = (items: Item[]) => {
+    const lines = [
+      "⚠️ *Stok Barang Menipis*",
+      "Barang berikut berada di bawah ambang stok kategori:",
+      ...items.map((item) => {
+        const threshold = thresholdMap.get(item.category) ?? 5;
+        return `• ${item.name} (${item.sku}) — stok ${item.stock} ${item.unit} (Limit: ${threshold})`;
+      }),
+    ];
+    return lines.join("\n");
+  };
+
   await sendTelegramMessage({
     botToken: token,
     chatId,
-    text: buildNotificationMessage(lowStockItems),
+    text: buildCategoryNotificationMessage(lowStockItems),
   });
 
   return { ok: true, message: "Notifikasi terkirim" } as const;

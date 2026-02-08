@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, PackageOpen, Settings, Users2 } from "lucide-react";
+import {
+  LayoutDashboard,
+  PackageOpen,
+  Settings,
+  Users2,
+  ShieldAlert,
+} from "lucide-react";
 import type { AppUser } from "@/types";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +25,12 @@ const NAV_ITEMS = [
     href: "/items",
     icon: PackageOpen,
     roles: ["admin", "staff"] as const,
+  },
+  {
+    label: "Threshold Stok",
+    href: "/thresholds",
+    icon: ShieldAlert,
+    roles: ["admin"] as const,
   },
   {
     label: "Pengguna",

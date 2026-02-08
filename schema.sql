@@ -60,3 +60,18 @@ VALUES (
   now()
 )
 ON CONFLICT (id) DO NOTHING;
+
+CREATE TABLE IF NOT EXISTS public.category_thresholds (
+  id uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  category text UNIQUE NOT NULL,
+  min_stock integer NOT NULL DEFAULT 5,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- Dummy data thresholds
+INSERT INTO public.category_thresholds (category, min_stock) VALUES
+  ('ATK', 10),
+  ('Elektronik', 5),
+  ('Operasional', 5)
+ON CONFLICT (category) DO UPDATE SET min_stock = EXCLUDED.min_stock;

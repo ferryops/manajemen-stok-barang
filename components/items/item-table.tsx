@@ -1,11 +1,30 @@
-import type { Item } from "@/types";
+"use client";
+
+import type { Item, CategoryThreshold } from "@/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { EditItemDialog } from "@/components/items/edit-item-dialog";
 import { deleteItem } from "@/lib/actions/items";
 
-export function ItemTable({ items }: { items: Item[] }) {
+export function ItemTable({
+  items,
+  categories,
+}: {
+  items: Item[];
+  categories: CategoryThreshold[];
+}) {
+  const thresholdMap = new Map<string, number>(
+    categories.map((c) => [c.category, c.min_stock]),
+  );
+
   return (
     <div className="overflow-hidden rounded-xl border bg-card">
       <Table>
@@ -20,38 +39,65 @@ export function ItemTable({ items }: { items: Item[] }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {items.map((item) => (
-            <TableRow key={item.id} className={item.stock < 5 ? "bg-destructive/5" : undefined}>
-              <TableCell className="font-medium">{item.name}</TableCell>
-              <TableCell>{item.sku}</TableCell>
-              <TableCell>
-                <Badge variant="secondary">{item.category}</Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <span>
-                    {item.stock} {item.unit}
-                  </span>
-                  {item.stock < 5 && <Badge variant="destructive">Menipis</Badge>}
-                </div>
-              </TableCell>
-              <TableCell>{item.location}</TableCell>
-              <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-2">
-                  <EditItemDialog item={item} />
-                  <form action={deleteItem}>
-                    <input type="hidden" name="id" value={item.id} />
-                    <Button variant="ghost" size="sm" type="submit">
-                      Hapus
-                    </Button>
-                  </form>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+          {items.map((item) => {
+            const threshold = thresholdMap.get(item.category) ?? 5;
+            const isLowStock = item.stock < threshold;
+
+            return (
+              <TableRow
+                key={item.id}
+                className={isLowStock ? "bg-destructive/5" : undefined}
+              >
+                <TableCell className="font-medium">{item.name}</TableCell>
+                <TableCell>{item.sku}</TableCell>
+                <TableCell>
+                  <Badge variant="secondary">{item.category}</Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <span>
+                      {item.stock} {item.unit}
+                    </span>
+                    {isLowStock && <Badge variant="destructive">Menipis</Badge>}
+                  </div>
+                </TableCell>
+                <TableCell>{item.location}</TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end gap-2">
+                    <EditItemDialog item={item} categories={categories} />
+                    <form
+                      action={deleteItem}
+                      onSubmit={(e) => {
+                        if (
+                          !confirm(
+                            `Apakah Anda yakin ingin menghapus "${item.name}"?`,
+                          )
+                        ) {
+                          e.preventDefault();
+                        }
+                      }}
+                    >
+                      <input type="hidden" name="id" value={item.id} />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        type="submit"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        Hapus
+                      </Button>
+                    </form>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
           {items.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-sm text-muted-foreground">
+              <TableCell
+                colSpan={6}
+                className="text-center text-sm text-muted-foreground"
+              >
                 Belum ada data barang.
               </TableCell>
             </TableRow>

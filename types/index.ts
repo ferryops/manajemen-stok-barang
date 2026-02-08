@@ -33,6 +33,16 @@ export type DashboardStats = {
   nearlyEmpty: number;
   categories: number;
   lowStockItems: Item[];
+  allItems: Item[];
+  categoryThresholds: CategoryThreshold[];
   itemsTrend: Array<{ label: string; total: number }>;
   lowStockByCategory: Array<{ category: string; total: number }>;
+};
+
+export type CategoryThreshold = {
+  id: string;
+  category: string;
+  min_stock: number;
+  created_at: string;
+  updated_at: string;
 };

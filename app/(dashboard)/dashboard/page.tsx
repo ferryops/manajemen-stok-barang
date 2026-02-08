@@ -22,18 +22,21 @@ export default async function DashboardPage() {
           value={String(stats.totalItems)}
           description="Semua item terdaftar"
           icon={<PackageOpen className="h-4 w-4 text-muted-foreground" />}
+          items={stats.allItems}
         />
         <StatCard
           title="Stok Menipis"
           value={String(stats.nearlyEmpty)}
-          description="Stok < 5 unit"
+          description="Berdasarkan limit kategori"
           icon={<AlertTriangle className="h-4 w-4 text-muted-foreground" />}
+          items={stats.lowStockItems}
         />
         <StatCard
           title="Kategori"
           value={String(stats.categories)}
           description="Distribusi item"
           icon={<Layers className="h-4 w-4 text-muted-foreground" />}
+          thresholds={stats.categoryThresholds}
         />
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
@@ -54,7 +57,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-      <LowStockList items={stats.lowStockItems.slice(0, 5)} />
+      <LowStockList items={stats.lowStockItems} />
     </div>
   );
 }

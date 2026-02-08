@@ -20,7 +20,9 @@ export function LowStockList({ items }: { items: Item[] }) {
                 SKU {item.sku} • {item.location}
               </p>
             </div>
-            <Badge variant="destructive">{item.stock} {item.unit}</Badge>
+            <Badge variant="destructive">
+              {item.stock} {item.unit}
+            </Badge>
           </div>
         ))}
       </CardContent>

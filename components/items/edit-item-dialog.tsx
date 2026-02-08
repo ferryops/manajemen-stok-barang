@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { PencilLine } from "lucide-react";
-import type { Item } from "@/types";
+import type { Item, CategoryThreshold } from "@/types";
 import { updateItem } from "@/lib/actions/items";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,7 +17,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-export function EditItemDialog({ item }: { item: Item }) {
+export function EditItemDialog({
+  item,
+  categories,
+}: {
+  item: Item;
+  categories: CategoryThreshold[];
+}) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(updateItem, undefined);
 
@@ -37,34 +43,77 @@ export function EditItemDialog({ item }: { item: Item }) {
           <input type="hidden" name="id" value={item.id} />
           <div className="space-y-1.5">
             <Label htmlFor={`name-${item.id}`}>Nama</Label>
-            <Input id={`name-${item.id}`} name="name" defaultValue={item.name} required />
+            <Input
+              id={`name-${item.id}`}
+              name="name"
+              defaultValue={item.name}
+              required
+            />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor={`sku-${item.id}`}>SKU</Label>
-            <Input id={`sku-${item.id}`} name="sku" defaultValue={item.sku} required />
+            <Input
+              id={`sku-${item.id}`}
+              name="sku"
+              defaultValue={item.sku}
+              required
+            />
           </div>
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor={`category-${item.id}`}>Kategori</Label>
-              <Input id={`category-${item.id}`} name="category" defaultValue={item.category} required />
+              <select
+                id={`category-${item.id}`}
+                name="category"
+                defaultValue={item.category}
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                required
+              >
+                {categories.map((c) => (
+                  <option key={c.id} value={c.category}>
+                    {c.category}
+                  </option>
+                ))}
+              </select>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor={`stock-${item.id}`}>Stok</Label>
-              <Input id={`stock-${item.id}`} name="stock" type="number" min={0} defaultValue={item.stock} required />
+              <Input
+                id={`stock-${item.id}`}
+                name="stock"
+                type="number"
+                min={0}
+                defaultValue={item.stock}
+                required
+              />
             </div>
           </div>
           <div className="grid gap-3 md:grid-cols-2">
             <div className="space-y-1.5">
               <Label htmlFor={`unit-${item.id}`}>Satuan</Label>
-              <Input id={`unit-${item.id}`} name="unit" defaultValue={item.unit} required />
+              <Input
+                id={`unit-${item.id}`}
+                name="unit"
+                defaultValue={item.unit}
+                required
+              />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor={`location-${item.id}`}>Lokasi</Label>
-              <Input id={`location-${item.id}`} name="location" defaultValue={item.location} required />
+              <Input
+                id={`location-${item.id}`}
+                name="location"
+                defaultValue={item.location}
+                required
+              />
             </div>
           </div>
-          {state?.error && <p className="text-sm text-destructive">{state.error}</p>}
-          {state?.success && <p className="text-sm text-emerald-600">{state.success}</p>}
+          {state?.error && (
+            <p className="text-sm text-destructive">{state.error}</p>
+          )}
+          {state?.success && (
+            <p className="text-sm text-emerald-600">{state.success}</p>
+          )}
           <DialogFooter>
             <Button type="submit">Simpan Perubahan</Button>
           </DialogFooter>
